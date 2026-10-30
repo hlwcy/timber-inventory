@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>正字量方登记</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #6b7280;
+      --line: #d7dde5;
+      --paper: #f7f4ee;
+      --surface: #ffffff;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --danger: #b42318;
+      --gold: #b7791f;
+      --green-soft: #d9f2ec;
+      --blue-soft: #dbeafe;
+      --shadow: 0 10px 28px rgba(31, 41, 51, .12);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f9faf7 0%, #ece8dd 100%);
+      color: var(--ink);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      min-height: 44px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 14px 92px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 8px 2px 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      background: var(--green-soft);
+      color: var(--accent-strong);
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .toolbar button, .primary {
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+    }
+
+    .toolbar .secondary {
+      background: #e7edf3;
+      color: #263442;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      background: rgba(255, 255, 255, .74);
+      border: 1px solid rgba(215, 221, 229, .9);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 4px 14px rgba(31, 41, 51, .05);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .form {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .field {
+      grid-column: span 2;
+    }
+
+    .field.small {
+      grid-column: span 1;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #cfd7df;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: white;
+      color: var(--ink);
+    }
+
+    .add-row {
+      grid-column: span 6;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .records {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .record {
+      border: 1px solid #dbe1e8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .record-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #eef1f4;
+      background: #fcfbf8;
+    }
+
+    .name {
+      font-weight: 850;
+      font-size: 17px;
+    }
+
+    .meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .volume {
+      text-align: right;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .tally-area {
+      display: grid;
+      grid-template-columns: 1fr 178px;
+      gap: 10px;
+      padding: 10px;
+      align-items: stretch;
+    }
+
+    .zheng {
+      min-height: 106px;
+      border: 1px dashed #c8d1dc;
+      border-radius: 8px;
+      padding: 9px;
+      background: var(--paper);
+      display: flex;
+      align-content: flex-start;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .72);
+      color: #263442;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .count-box {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      align-content: stretch;
+    }
+
+    .count-box button {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .minus { background: #f3e9e7; color: var(--danger); }
+    .plus { background: var(--green-soft); color: var(--accent-strong); }
+    .plus5 { background: var(--blue-soft); color: #1d4ed8; }
+    .count {
+      grid-column: span 3;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #eef2f6;
+      min-height: 48px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .empty {
+      padding: 28px 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, .92);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    .footer-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .footer-inner button:first-child {
+      background: #263442;
+      color: white;
+      font-weight: 800;
+    }
+
+    .footer-inner button:last-child {
+      background: #efe6d2;
+      color: #7c4a03;
+      font-weight: 800;
+    }
+
+    @media (max-width: 720px) {
+      .app { padding-left: 10px; padding-right: 10px; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .summary { grid-template-columns: 1fr 1fr 1fr; }
+      .metric { padding: 8px; }
+      .metric strong { font-size: 19px; }
+      .form { grid-template-columns: repeat(2, 1fr); }
+      .field, .field.small, .add-row { grid-column: span 2; }
+      .add-row { grid-template-columns: 1fr; }
+      .tally-area { grid-template-columns: 1fr; }
+      .count-box { grid-template-columns: repeat(3, 1fr); }
+      .count { grid-column: span 3; }
+      .zheng { min-height: 94px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>正字量方登记</h1>
+        <div class="subtitle">按规格分组，点一下记一根，满五根自动成一个“正”。</div>
+      </div>
+      <div class="pill" id="today"></div>
+    </header>
+
+    <section class="toolbar" aria-label="批次操作">
+      <button id="newBatch">新批次</button>
+      <button class="secondary" id="saveSnapshot">保存</button>
+      <button class="secondary" id="exportCsv">导出CSV</button>
+      <button class="secondary" id="clearAll">清空</button>
+    </section>
+
+    <section class="summary" aria-label="汇总">
+      <div class="metric"><span>批次</span><strong id="batchLabel">-</strong></div>
+      <div class="metric"><span>总根数</span><strong id="totalPieces">0</strong></div>
+      <div class="metric"><span>总方量</span><strong id="totalVolume">0.000</strong></div>
+    </section>
+
+    <section class="panel">
+      <form class="form" id="recordForm">
+        <div class="field">
+          <label for="species">树种</label>
+          <input id="species" placeholder="杉木" value="杉木">
+        </div>
+        <div class="field small">
+          <label for="length">长度 m</label>
+          <input id="length" type="number" min="0" step="0.1" placeholder="4" value="4">
+        </div>
+        <div class="field small">
+          <label for="diameter">直径 cm</label>
+          <input id="diameter" type="number" min="0" step="1" placeholder="18" value="18">
+        </div>
+        <div class="field">
+          <label for="customer">客户/车牌</label>
+          <input id="customer" placeholder="可不填">
+        </div>
+        <div class="field">
+          <label for="formula">计算方式</label>
+          <select id="formula">
+            <option value="cylinder">圆柱估算法</option>
+            <option value="manual">只记根数</option>
+          </select>
+        </div>
+        <div class="add-row">
+          <div class="hint">圆柱估算法：方量 = π × (直径/200)^2 × 长度 × 根数。后续可替换为你的本地材积表。</div>
+          <button class="primary" type="submit">添加规格</button>
+        </div>
+      </form>
+
+      <div class="records" id="records"></div>
+    </section>
+  </main>
+
+  <div class="footer-bar">
+    <div class="footer-inner">
+      <button id="copySummary">复制汇总</button>
+      <button id="installHint">添加到主屏幕</button>
+    </div>
+  </div>
+
+  <script>
+    const storeKey = "zheng-log-volume-v1";
+    const $ = (id) => document.getElementById(id);
+
+    let state = loadState();
+
+    function defaultState() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      return {
+        batch: `${yyyy}${mm}${dd}-001`,
+        createdAt: now.toISOString(),
+        records: []
+      };
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(storeKey);
+        return saved ? JSON.parse(saved) : defaultState();
+      } catch {
+        return defaultState();
+      }
+    }
+
+    function save() {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    }
+
+    function strokeMark(n) {
+      const rem = n % 5;
+      const full = Math.floor(n / 5);
+      const marks = [];
+      for (let i = 0; i < full; i += 1) marks.push("正");
+      if (rem === 1) marks.push("一");
+      if (rem === 2) marks.push("二");
+      if (rem === 3) marks.push("三");
+      if (rem === 4) marks.push("止");
+      return marks;
+    }
+
+    function volumeEach(record) {
+      if (record.formula === "manual") return 0;
+      const d = Number(record.diameter) / 100;
+      const len = Number(record.length);
+      if (!d || !len) return 0;
+      return Math.PI * Math.pow(d / 2, 2) * len;
+    }
+
+    function render() {
+      const today = new Date().toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" });
+      $("today").textContent = today;
+      $("batchLabel").textContent = state.batch;
+
+      const totalPieces = state.records.reduce((sum, r) => sum + r.count, 0);
+      const totalVolume = state.records.reduce((sum, r) => sum + volumeEach(r) * r.count, 0);
+      $("totalPieces").textContent = totalPieces;
+      $("totalVolume").textContent = totalVolume.toFixed(3);
+
+      const container = $("records");
+      if (!state.records.length) {
+        container.innerHTML = '<div class="empty">先添加一个规格，例如：杉木 / 4米 / 18厘米。</div>';
+        return;
+      }
+
+      container.innerHTML = state.records.map((record) => {
+        const marks = strokeMark(record.count).map(m => `<span class="mark">${m}</span>`).join("");
+        const each = volumeEach(record);
+        const total = each * record.count;
+        const title = `${record.species || "未命名"} ${record.length || "-"}m / ${record.diameter || "-"}cm`;
+        const customer = record.customer ? ` · ${record.customer}` : "";
+        return `
+          <article class="record">
+            <div class="record-head">
+              <div>
+                <div class="name">${escapeHtml(title)}</div>
+                <div class="meta">单根 ${each.toFixed(4)} 方${escapeHtml(customer)}</div>
+              </div>
+              <div class="volume">${total.toFixed(3)} 方</div>
+            </div>
+            <div class="tally-area">
+              <div class="zheng">${marks || '<span class="meta">暂无登记</span>'}</div>
+              <div class="count-box">
+                <button class="minus" data-action="dec" data-id="${record.id}">-1</button>
+                <button class="plus" data-action="inc" data-id="${record.id}">+1</button>
+                <button class="plus5" data-action="add5" data-id="${record.id}">+5</button>
+                <div class="count">${record.count} 根</div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    $("recordForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const record = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        species: $("species").value.trim(),
+        length: $("length").value,
+        diameter: $("diameter").value,
+        customer: $("customer").value.trim(),
+        formula: $("formula").value,
+        count: 0
+      };
+      state.records.unshift(record);
+      save();
+      render();
+    });
+
+    $("records").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const record = state.records.find(r => r.id === button.dataset.id);
+      if (!record) return;
+      if (button.dataset.action === "inc") record.count += 1;
+      if (button.dataset.action === "add5") record.count += 5;
+      if (button.dataset.action === "dec") record.count = Math.max(0, record.count - 1);
+      if (navigator.vibrate) navigator.vibrate(18);
+      save();
+      render();
+    });
+
+    $("newBatch").addEventListener("click", () => {
+      if (state.records.length && !confirm("开始新批次会清空当前登记，是否继续？")) return;
+      state = defaultState();
+      save();
+      render();
+    });
+
+    $("saveSnapshot").addEventListener("click", () => {
+      save();
+      alert("已保存到本机浏览器。");
+    });
+
+    $("clearAll").addEventListener("click", () => {
+      if (!confirm("确定清空当前批次所有记录？")) return;
+      state.records = [];
+      save();
+      render();
+    });
+
+    $("copySummary").addEventListener("click", async () => {
+      const text = summaryText();
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("汇总已复制。");
+      } catch {
+        alert(text);
+      }
+    });
+
+    $("installHint").addEventListener("click", () => {
+      alert("iPhone Safari：点分享按钮，然后选择“添加到主屏幕”，就能像 App 一样打开。");
+    });
+
+    $("exportCsv").addEventListener("click", () => {
+      const rows = [["批次", "树种", "长度m", "直径cm", "客户车牌", "正字", "根数", "单根方量", "合计方量"]];
+      state.records.forEach((r) => {
+        const each = volumeEach(r);
+        rows.push([
+          state.batch,
+          r.species,
+          r.length,
+          r.diameter,
+          r.customer,
+          strokeMark(r.count).join(""),
+          r.count,
+          each.toFixed(4),
+          (each * r.count).toFixed(3)
+        ]);
+      });
+      const csv = rows.map(row => row.map(cell => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${state.batch}-原木登记.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function summaryText() {
+      const lines = [`批次：${state.batch}`];
+      state.records.forEach((r) => {
+        const each = volumeEach(r);
+        lines.push(`${r.species} ${r.length}m/${r.diameter}cm：${strokeMark(r.count).join("") || "0"}，${r.count}根，${(each * r.count).toFixed(3)}方`);
+      });
+      lines.push(`合计：${state.records.reduce((s, r) => s + r.count, 0)}根，${state.records.reduce((s, r) => s + volumeEach(r) * r.count, 0).toFixed(3)}方`);
+      return lines.join("\n");
+    }
+
+    render();
+  </script>
+</body>
+</html>
